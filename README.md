@@ -1,12 +1,12 @@
 # esel
 
-edit simply, edit light
+> edit simply, edit light
 
 
 ## Dependencies
 
 ```
-sudo apt-get install cmake make gcc libncursesw5-dev upx
+sudo apt-get install cmake make gcc libncursesw5-dev
 ```
 
 
