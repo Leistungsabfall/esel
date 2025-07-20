@@ -16,21 +16,22 @@ void handle_resize(TextArea* textarea) {
     textarea->lines = LINES - 2;
 }
 
-void display_text(TextArea* textarea, char text[textarea->lines][textarea->cols], int current_line, int cursor_pos, int scroll_offset) {
+void display_text(TextArea* textarea, char* text) {
     wclear(textarea->widget);
     box(textarea->widget, 0, 0);
 
-    // Display only the visible lines based on the scroll offset
-    for (int i = 0; i < textarea->lines; i++) {
-        int line_index = scroll_offset + i;
-        if (line_index < textarea->lines && text[line_index][0] != '\0') {
-            mvwprintw(textarea->widget, i + 1, 1, "%s", text[line_index]);
-        }
-    }
+    mvwprintw(textarea->widget, 1, 1, "%s", text);
 
     // Move the cursor to the correct position
-    wmove(textarea->widget, current_line - scroll_offset + 1, cursor_pos + 1);
+    //wmove(textarea->widget, current_line - scroll_offset + 1, cursor_pos + 1);
     wrefresh(textarea->widget);
+}
+
+void store_debug_output(char* text, Input* input) {
+    //if type(input.data == key) {
+        // TODO
+    //}
+    sprintf(text, "Input: Type: %d Key %d", input->type, input->data.key.key.key);
 }
 
 int main() {
@@ -52,10 +53,14 @@ int main() {
     int scroll_offset = 0; // Number of lines scrolled
     int ch;*/
 
+    enable_mouse_support();
     Input input;
+    char text[1024];
     while (true) {
         read_stdin(&input);
-        if (input.type == KEY && input.key == ESCAPE) {
+        store_debug_output(text, &input);
+        display_text(&textarea, text);
+        if (input.type == KEY && input.data.key.key.key == ESCAPE) {
             goto end;
         }
 
@@ -161,5 +166,6 @@ int main() {
 end:
     delwin(textarea.widget);
     endwin(); // End ncurses mode
+    disable_mouse_support();
     return 0;
 }

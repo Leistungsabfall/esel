@@ -5,18 +5,31 @@
 
 #include "keys.h"
 
-extern const int MOUSE;
-extern const int KEY;
+typedef enum {
+    KEY,
+    MOUSE,
+} InputType;
 
 typedef struct {
-    int type;
-    // Mouse
+    Key key;
+} KeyPress;
+
+typedef struct {
     int x;
     int y;
     bool pressed;
-    // Key
-    int key;
+} MouseEvent;
+
+typedef struct {
+    InputType type; // Type of input
+    union {
+        MouseEvent mouse; // Mouse event data
+        KeyPress key; // Keyboard event data
+    } data; // Union to hold either mouse or keyboard data
 } Input;
+
+void enable_mouse_support();
+void disable_mouse_support();
 
 void read_stdin(Input* input);
 
