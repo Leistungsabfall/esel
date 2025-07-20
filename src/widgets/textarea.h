@@ -11,4 +11,4 @@ typedef struct {
 
 void init_textarea(TextArea* textarea);
 
-#endif /* TEXTAREA_H */
+#endif // TEXTAREA_H

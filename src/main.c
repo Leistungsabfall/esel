@@ -1,6 +1,8 @@
 #include <ncurses.h>
+#include <stdbool.h>
 #include <string.h>
 
+#include "input/input.h"
 #include "widgets/textarea.h"
 
 // #define UNUSED(x) (void)(x)
@@ -44,15 +46,22 @@ int main() {
     TextArea textarea;
     init_textarea(&textarea);
 
-    char text[1000][1000] = {}; // Array to hold text lines
+    /*char text[1000][1000] = {}; // Array to hold text lines
     int current_line = 0;
     int cursor_pos = 0; // Position of the cursor in the current line
     int scroll_offset = 0; // Number of lines scrolled
-    int ch;
+    int ch;*/
 
-    while (1) {
-        display_text(&textarea, text, current_line, cursor_pos, scroll_offset);
-        ch = wgetch(textarea.widget);
+    Input input;
+    while (true) {
+        read_stdin(&input);
+        if (input.type == KEY && input.key == ESCAPE) {
+            goto end;
+        }
+
+        /*
+        // display_text(&textarea, text, current_line, cursor_pos, scroll_offset);
+        // ch = wgetch(textarea.widget);
 
         if (ch == ERR) {
             // timeout, continue event loop
@@ -146,7 +155,7 @@ int main() {
                     }
                 }
                 break;
-        }
+        }*/
     }
 
 end:
