@@ -28,10 +28,11 @@ void display_text(TextArea* textarea, char* text) {
 }
 
 void store_debug_output(char* text, Input* input) {
-    //if type(input.data == key) {
-        // TODO
-    //}
-    sprintf(text, "Input: Type: %d Key %d", input->type, input->data.key.key.key);
+    sprintf(text, "Input: Event: %d Length: %d Code [", input->event, input->data.key.length);
+    for (int i=0; i<input->data.key.length;i++) {
+        sprintf(text + strlen(text), " %X ", (input->data.key.code[i] >> (i * 8)) & 0xFF);
+    }
+    sprintf(text + strlen(text), "]");
 }
 
 int main() {
@@ -60,8 +61,10 @@ int main() {
         read_stdin(&input);
         store_debug_output(text, &input);
         display_text(&textarea, text);
-        if (input.type == KEY && input.data.key.key.key == ESCAPE) {
-            break;
+        if (input.event == KEY) {
+            if (keys[ESCAPE].length == input.data.key.length && memcmp(&keys[ESCAPE], &input.data.key.code, input.data.key.length) == 0) {
+                break;
+            }
         }
 
 

@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <unistd.h> // ssize_t
+#include <string.h> // memcpy()
 #include <sys/select.h> // select()
 
 #include "input.h"
@@ -21,7 +22,7 @@ void disable_mouse_support() {
 void read_stdin(Input* input) {
     const int STDIN = 0;
     int fd = STDIN;
-    char buffer[100];
+    int buffer[100];
     fd_set readfds;
     struct timeval timeout;
 
@@ -38,21 +39,22 @@ void read_stdin(Input* input) {
 
     if (result == -1) {
         // Error
-        input->type = KEY;
-        input->data.key.key.key = -1;
+        input->event = MOUSE;
+        //memcpy(input->data.key.code, [-1], 1);
     } else if (result == 0) {
         // Timeout
-        input->type = KEY;
-        input->data.key.key.key = -2;
+        input->event = MOUSE;
+        //input->data.key = -2;
     } else {
         // Data is available to read
         ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
-        if (bytesRead == 0) {
-            input->type = KEY;
-            input->data.key.key.key = -3;
-        } else if (bytesRead == 1) {
-            input->type = KEY;
-            input->data.key.key.key = buffer[0];
+        if (bytesRead < 1) {
+            input->event = MOUSE;
+            //input->data.key = -3;
+        } else {
+            input->event = KEY;
+            input->data.key.length = bytesRead;
+            memcpy(&(input->data.key.code), &buffer, bytesRead);
         }
     }
 }
