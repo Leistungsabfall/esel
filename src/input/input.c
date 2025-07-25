@@ -1,10 +1,12 @@
 #include <ncurses.h>
 #include <unistd.h> // ssize_t
+#include <string.h> // memcpy()
 #include <sys/select.h> // select()
 
 #include "input.h"
 
 void enable_mouse_support() {
+    //printf("\x1b[?1l"); // Re-activate normal mode (instead of application mode)
     printf("\033[?1002h\n"); // Makes the terminal report mouse movement events
     printf("\033[?1003h\n"); // Makes the terminal report mouse movement events
     printf("\033[?1015h\n"); // Enable urxvt Mouse mode. (For terminals that understand this.)
@@ -12,6 +14,7 @@ void enable_mouse_support() {
 }
 
 void disable_mouse_support() {
+    //printf("\x1b[?1h"); // Disable normal mode
     printf("\033[?1002l\n"); // Disable mouse movement events, as l = low
     printf("\033[?1003l\n"); // Disable mouse movement events, as l = low
     printf("\033[?1015l\n"); // Disable mouse movement events, as l = low
@@ -38,21 +41,23 @@ void read_stdin(Input* input) {
 
     if (result == -1) {
         // Error
-        input->type = KEY;
-        input->data.key.key.key = -1;
+        input->event = MOUSE;
+        //memcpy(input->data.key.code, [-1], 1);
     } else if (result == 0) {
         // Timeout
-        input->type = KEY;
-        input->data.key.key.key = -2;
+        input->event = MOUSE;
+        //input->data.key = -2;
     } else {
         // Data is available to read
-        ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
-        if (bytesRead == 0) {
-            input->type = KEY;
-            input->data.key.key.key = -3;
-        } else if (bytesRead == 1) {
-            input->type = KEY;
-            input->data.key.key.key = buffer[0];
+        ssize_t bytesRead = read(fd, input->data.key.code, sizeof(buffer) - 1);
+        if (bytesRead < 1) {
+            input->event = MOUSE;
+            //input->data.key = -3;
+        } else {
+            input->event = KEY;
+            input->data.key.length = bytesRead;
+            //printf("0x%02X 0x%02X 0x%02X 0x%02X\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+            //memcpy(&(input->data.key.code), &buffer, bytesRead);
         }
     }
 }

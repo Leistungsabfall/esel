@@ -28,17 +28,19 @@ void display_text(TextArea* textarea, char* text) {
 }
 
 void store_debug_output(char* text, Input* input) {
-    //if type(input.data == key) {
-        // TODO
-    //}
-    sprintf(text, "Input: Type: %d Key %d", input->type, input->data.key.key.key);
+    sprintf(text, "Input: Event: %d Length: %d Code [", input->event, input->data.key.length);
+    for (int i=0; i<input->data.key.length;i++) {
+        sprintf(text + strlen(text), " 0x%02X ", input->data.key.code[i]);
+    }
+    sprintf(text + strlen(text), "]\n");
 }
 
 int main() {
     initscr();              // Initialize ncurses
     cbreak();               // Disable line buffering
     noecho();               // Don't echo input
-    mousemask(ALL_MOUSE_EVENTS, NULL); // Enable mouse events
+    keypad(stdscr, FALSE);  // Explicitly enable normal mode
+    //mousemask(ALL_MOUSE_EVENTS, NULL); // Enable mouse events
     timeout(0);             // Set a timeout for getch() (milliseconds)
     refresh();
     screen_height = LINES;
@@ -54,14 +56,19 @@ int main() {
     int ch;*/
 
     enable_mouse_support();
-    Input input;
+    Input input = {
+        .event = MOUSE,
+        .data.key.length = 0,
+    };
     char text[1024];
     while (true) {
         read_stdin(&input);
         store_debug_output(text, &input);
         display_text(&textarea, text);
-        if (input.type == KEY && input.data.key.key.key == ESCAPE) {
-            break;
+        if (input.event == KEY) {
+            if (keys[ESCAPE].length == input.data.key.length && memcmp(&keys[ESCAPE], &input.data.key.code, input.data.key.length) == 0) {
+                break;
+            }
         }
 
 

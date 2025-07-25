@@ -1,10 +1,16 @@
 #ifndef KEYS_H
 #define KEYS_H
 
+typedef enum {
+    ESCAPE,
+    ARROW_RIGHT,
+} Code;
+
 typedef struct {
-    int key;
+    char code[100];
+    int length;
 } Key;
 
-extern int ESCAPE;
+extern Key keys[100];
 
 #endif // KEYS_H

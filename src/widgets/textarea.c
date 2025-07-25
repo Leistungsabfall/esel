@@ -10,5 +10,5 @@ void init_textarea(TextArea* textarea) {
     wrefresh(textarea->widget);
     refresh(); // TODO: outsource, even needed?
     clear(); // TODO: outsource, even needed?
-    keypad(textarea->widget, TRUE);   // Enable function keys and arrow keys
+    //keypad(textarea->widget, TRUE);   // Enable function keys and arrow keys
 }

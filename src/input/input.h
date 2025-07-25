@@ -4,27 +4,18 @@
 #include <stdbool.h>
 
 #include "keys.h"
+#include "mouse.h"
 
 typedef enum {
     KEY,
     MOUSE,
-} InputType;
+} Event;
 
 typedef struct {
-    Key key;
-} KeyPress;
-
-typedef struct {
-    int x;
-    int y;
-    bool pressed;
-} MouseEvent;
-
-typedef struct {
-    InputType type; // Type of input
+    Event event; // Type of input
     union {
-        MouseEvent mouse; // Mouse event data
-        KeyPress key; // Keyboard event data
+        Mouse mouse; // Mouse event data
+        Key key; // Keyboard event data
     } data; // Union to hold either mouse or keyboard data
 } Input;
 
