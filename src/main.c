@@ -61,8 +61,10 @@ int main() {
         store_debug_output(text, &input);
         display_text(&textarea, text);
         if (input.type == KEY && input.data.key.key.key == ESCAPE) {
-            goto end;
+            break;
         }
+
+
 
         /*
         // display_text(&textarea, text, current_line, cursor_pos, scroll_offset);
@@ -163,7 +165,6 @@ int main() {
         }*/
     }
 
-end:
     delwin(textarea.widget);
     endwin(); // End ncurses mode
     disable_mouse_support();

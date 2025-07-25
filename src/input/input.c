@@ -1,7 +1,6 @@
 #include <ncurses.h>
-#include <stdio.h> // printf()
-#include <string.h> // strlen()
-#include <unistd.h> // read()
+#include <unistd.h> // ssize_t
+#include <sys/select.h> // select()
 
 #include "input.h"
 
@@ -20,15 +19,40 @@ void disable_mouse_support() {
 }
 
 void read_stdin(Input* input) {
-    char buffer[1024] = {0};
-    int size = read(0, buffer, sizeof(buffer) - 1);
-//     if (size == -1) {
-//         input->type = INVALID;
-//     } TODO
-//
-    // Check for ESC
-    if (size == 1 && buffer[0] == ESCAPE) {
+    const int STDIN = 0;
+    int fd = STDIN;
+    char buffer[100];
+    fd_set readfds;
+    struct timeval timeout;
+
+    // Set up the file descriptor set
+    FD_ZERO(&readfds);
+    FD_SET(fd, &readfds);
+
+    // Set the timeout
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100000; // 1 second = 1000000 microseconds
+
+    // Wait for data to be available
+    int result = select(fd + 1, &readfds, NULL, NULL, &timeout);
+
+    if (result == -1) {
+        // Error
         input->type = KEY;
-        input->data.key.key.key = ESCAPE;
+        input->data.key.key.key = -1;
+    } else if (result == 0) {
+        // Timeout
+        input->type = KEY;
+        input->data.key.key.key = -2;
+    } else {
+        // Data is available to read
+        ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+        if (bytesRead == 0) {
+            input->type = KEY;
+            input->data.key.key.key = -3;
+        } else if (bytesRead == 1) {
+            input->type = KEY;
+            input->data.key.key.key = buffer[0];
+        }
     }
 }
